@@ -38,61 +38,53 @@ class _LoginViewState extends State<LoginView> {
   Widget build(BuildContext context) {
     //Change to Container
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Login'),
-        ),
-        body: FutureBuilder(
-          future: Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform,
+      appBar: AppBar(
+        title: const Text('Login'),
+      ),
+      body: Column(
+        children: [
+          TextField(
+            controller: _email,
+            enableSuggestions: false,
+            autocorrect: false,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(hintText: 'Enter your email here'),
           ),
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                // TODO: Handle this case.
-                return Column(
-                  children: [
-                    TextField(
-                      controller: _email,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                          hintText: 'Enter your email here'),
-                    ),
-                    TextField(
-                      controller: _password,
-                      obscureText: true,
-                      autocorrect: false,
-                      enableSuggestions: false,
-                      decoration: const InputDecoration(
-                          hintText: 'Enter your password here'),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        await Firebase.initializeApp(
-                          options: DefaultFirebaseOptions.currentPlatform,
-                        );
+          TextField(
+            controller: _password,
+            obscureText: true,
+            autocorrect: false,
+            enableSuggestions: false,
+            decoration:
+                const InputDecoration(hintText: 'Enter your password here'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await Firebase.initializeApp(
+                options: DefaultFirebaseOptions.currentPlatform,
+              );
 
-                        final email = _email.text;
-                        final password = _password.text;
-                        try {
-                          final userCredential = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                              email: email, password: password);
-                          print(userCredential);
-                        } on FirebaseAuthException catch (e) {
-                          //print(e.runtimeType) = to check the runtimeType which is FirebaseAuthException above.
-                          print(e.code);
-                        }
-                      },
-                      child: const Text('Login'),
-                    )
-                  ],
-                );
-              default:
-                return const Text('Loading...');
-            }
-          },
-        ));
+              final email = _email.text;
+              final password = _password.text;
+              try {
+                final userCredential = await FirebaseAuth.instance
+                    .signInWithEmailAndPassword(email: email, password: password);
+                print(userCredential);
+              } on FirebaseAuthException catch (e) {
+                //print(e.runtimeType) = to check the runtimeType which is FirebaseAuthException above.
+                print(e.code);
+              }
+            },
+            child: const Text('Login'),
+          ),
+          TextButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/register/', (route) => false);
+              },
+              child: const Text('Not register yt? Register Here!'))
+        ],
+      ),
+    );
   }
 }
