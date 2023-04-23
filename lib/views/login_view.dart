@@ -1,11 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mynotes/service/auth/auth/auth_service.dart';
 import 'package:mynotes/views/register_view.dart';
 import '../constants/routes.dart';
 import '../firebase_options.dart';
 import 'dart:developer' as devtools show log;
+
+import '../service/auth/auth/auth_exceptions.dart';
 
 //Type stl to get this
 //key in alt + enter for changing to either StatefulWidget/StatelessWidget
@@ -67,12 +68,10 @@ class _LoginViewState extends State<LoginView> {
               final email = _email.text;
               final password = _password.text;
               try {
-                final userCredential = await FirebaseAuth.instance
-                    .signInWithEmailAndPassword(
-                        email: email, password: password);
-                print(userCredential);
-                final user = await FirebaseAuth.instance.currentUser;
-                if (user?.emailVerified ?? false) {
+                await AuthService.firebase()
+                    .logIn(email: email, password: password);
+                final user = await AuthService.firebase().currentUser;
+                if (user?.isEmailVerified ?? false) {
                   Navigator.of(context).pushNamedAndRemoveUntil(
                     notesRoute,
                     (route) => false,
@@ -83,23 +82,20 @@ class _LoginViewState extends State<LoginView> {
                     (route) => false,
                   );
                 }
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'wrong-password') {
-                  await showErrorDialog(
-                    context,
-                    'Wrong credentils',
-                  );
-                } else {
-                  await showErrorDialog(
-                    context,
-                    'Error: ${e.code}',
-                  );
-                }
-                //print(e.runtimeType) = to check the runtimeType which is FirebaseAuthException above.
-              } catch (e) {
+              } on UserNotFoundAuthException {
                 await showErrorDialog(
                   context,
-                  e.toString(),
+                  'User not found',
+                );
+              } on WrongPasswordAuthException {
+                await showErrorDialog(
+                  context,
+                  'Wrong credentials',
+                );
+              } on GenericAuthException {
+                await showErrorDialog(
+                  context,
+                  'Authentication error',
                 );
               }
             },
