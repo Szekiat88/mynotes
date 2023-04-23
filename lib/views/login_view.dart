@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../firebase_options.dart';
+import 'dart:developer' as devtools show log;
 
 //Type stl to get this
 //key in alt + enter for changing to either StatefulWidget/StatelessWidget
@@ -60,16 +61,16 @@ class _LoginViewState extends State<LoginView> {
           ),
           TextButton(
             onPressed: () async {
-              await Firebase.initializeApp(
-                options: DefaultFirebaseOptions.currentPlatform,
-              );
-
               final email = _email.text;
               final password = _password.text;
               try {
                 final userCredential = await FirebaseAuth.instance
                     .signInWithEmailAndPassword(email: email, password: password);
                 print(userCredential);
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/notes/',
+                      (route) => false,
+                );
               } on FirebaseAuthException catch (e) {
                 //print(e.runtimeType) = to check the runtimeType which is FirebaseAuthException above.
                 print(e.code);
