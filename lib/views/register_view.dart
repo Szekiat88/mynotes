@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../constants/routes.dart';
 import '../firebase_options.dart';
 import 'dart:developer' as devtools show log;
-
+import '../utilities/show_error_dialog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -48,7 +48,8 @@ class _RegisterViewState extends State<RegisterView> {
             enableSuggestions: false,
             autocorrect: false,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: 'Enter your email here'),
+            decoration:
+                const InputDecoration(hintText: 'Enter your email here'),
           ),
           TextField(
             controller: _password,
@@ -70,25 +71,64 @@ class _RegisterViewState extends State<RegisterView> {
                 final userCredential = await FirebaseAuth.instance
                     .createUserWithEmailAndPassword(
                         email: email, password: password);
+                final user = FirebaseAuth.instance.currentUser;
+                await user?.sendEmailVerification();
+                Navigator.of(context).pushNamed(verifyEmailRoute);
+                //pushNamed VS pushNamedAndRemoveUntil =>
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
-                  print('Weak Password');
+                  await showErrorDialog(
+                    context,
+                    'Error: ${e.code}',
+                  );
+                  devtools.log('weak-password');
                 } else if (e.code == 'email-already-in-use') {
-                  print('Email already in use.');
+                  await showErrorDialog(
+                    context,
+                    'Error: ${e.code}',
+                  );
                 }
                 print(e.code);
+              } catch (e) {
+                await showErrorDialog(
+                  context,
+                  'Error: ${e.toString()}',
+                );
               }
             },
             child: const Text('Register'),
           ),
-          TextButton(onPressed: () {
-            Navigator.of(context)
-                .pushNamedAndRemoveUntil(loginRoute, (route) => false);
-          }, child: const Text('Already registered'),)
+          TextButton(
+            onPressed: () {
+              Navigator.of(context)
+                  .pushNamedAndRemoveUntil(loginRoute, (route) => false);
+            },
+            child: const Text('Already registered'),
+          )
         ],
       ),
     );
   }
 }
 
-
+Future<void> showErrorDialog(
+  BuildContext context,
+  String text,
+) {
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('An error occurred'),
+        content: Text(text),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK')),
+        ],
+      );
+    },
+  );
+}
