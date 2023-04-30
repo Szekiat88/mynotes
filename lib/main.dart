@@ -5,7 +5,8 @@ import 'package:mynotes/firebase_options.dart';
 import 'package:mynotes/service/auth/auth/auth_service.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
 import 'package:mynotes/views/login_view.dart';
-import 'package:mynotes/views/notes_view.dart';
+import 'package:mynotes/views/notes/new_note_view.dart';
+import 'package:mynotes/views/notes/notes_view.dart';
 import 'package:mynotes/views/register_view.dart';
 import 'package:mynotes/views/verify_email_view.dart';
 import 'dart:developer' as devtools show log;
@@ -28,6 +29,7 @@ void main() {
         registerRoute : (context) => const RegisterView(),
         notesRoute: (context) => const NotesView(),
         verifyEmailRoute: (context) => const VerifyEmailView(),
+        newNoteRoute: (context) => const NewNoteView(),
       },
     ),
   );
@@ -65,5 +67,4 @@ class HomePage extends StatelessWidget {
 
 enum MenuAction { logout }
 
-//stful
 
