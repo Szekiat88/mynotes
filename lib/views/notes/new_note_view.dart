@@ -1,17 +1,17 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mynotes/service/auth/auth/auth_service.dart';
-import 'package:mynotes/service/auth/auth/crud/notes_service.dart';
+
+import '../../service/auth/auth/auth_service.dart';
+import '../../service/auth/auth/crud/notes_service.dart';
 
 class NewNoteView extends StatefulWidget {
   const NewNoteView({Key? key}) : super(key: key);
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  _NewNoteViewState createState() => _NewNoteViewState();
 }
 
 class _NewNoteViewState extends State<NewNoteView> {
-  DatabaseNote? _note; //when its has no value to start with
+  DatabaseNote? _note;
   late final NotesService _notesService;
   late final TextEditingController _textController;
 
@@ -28,8 +28,10 @@ class _NewNoteViewState extends State<NewNoteView> {
       return;
     }
     final text = _textController.text;
-    await _notesService.updateNote(note: note, text: text)
-
+    await _notesService.updateNote(
+      note: note,
+      text: text,
+    );
   }
 
   void _setupTextControllerListener() {
@@ -39,10 +41,10 @@ class _NewNoteViewState extends State<NewNoteView> {
 
   Future<DatabaseNote> createNewNote() async {
     final existingNote = _note;
-    if (existingNote != null){
+    if (existingNote != null) {
       return existingNote;
     }
-    final currentUser = AuthService.firebase().currentUser!; // Purposely to let it crush if cannot get the current User.
+    final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
     final owner = await _notesService.getUser(email: email);
     return await _notesService.createNote(owner: owner);
@@ -58,10 +60,10 @@ class _NewNoteViewState extends State<NewNoteView> {
   void _saveNoteIfTextNotEmpty() async {
     final note = _note;
     final text = _textController.text;
-    if(note != null && text.isNotEmpty){
+    if (note != null && text.isNotEmpty) {
       await _notesService.updateNote(
-          note: note,
-          text: text
+        note: note,
+        text: text,
       );
     }
   }
@@ -82,23 +84,25 @@ class _NewNoteViewState extends State<NewNoteView> {
       ),
       body: FutureBuilder(
         future: createNewNote(),
-        builder: (context, snapshot){
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
+          builder: (context, snapshot){
+            if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
               _note = snapshot.data as DatabaseNote;
+              print(_note);
               _setupTextControllerListener();
               return TextField(
                 controller: _textController,
                 keyboardType: TextInputType.multiline,
-                maxLines: null,
                 decoration: const InputDecoration(
-                  hintText: 'Start typing your note...'
+                  hintText: 'Start typing your note...',
                 ),
               );
-            default:
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
-          }
-        },
+            } else {
+              // handle error case
+              return const Text('Error retrieving note');
+            }
+          },
       )
     );
   }
