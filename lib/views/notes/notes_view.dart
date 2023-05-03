@@ -77,43 +77,31 @@ class _NotesViewState extends State<NotesView> {
               return StreamBuilder(
                 stream: _notesService.allNotes,
                 builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    // Future completed with data
-                    final user = snapshot.data;
-                    return Text('User email: ${user.toString()}');
-                  } else if (snapshot.hasError) {
-                    // Future completed with error
-                    return Text('THis is SK Error: ${snapshot.error}');
-                  } else {
-                    // Future still in progress
-                    return CircularProgressIndicator();
+                  switch (snapshot.connectionState) {
+                    case ConnectionState.waiting:
+                    case ConnectionState.active:
+                      if (snapshot.hasData) {
+                        final allNotes = snapshot.data as List<DatabaseNote>;
+                        print(allNotes);
+                        return ListView.builder(
+                            itemCount: allNotes.length,
+                            itemBuilder: (context, index) {
+                              final note = allNotes[index];
+                              return ListTile(
+                                title: Text(
+                                    note.text,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                  //showing ...
+                                ),
+                              );
+                            });
+                      } else {
+                      return const CircularProgressIndicator();}
+                    default:
+                      return const CircularProgressIndicator();
                   }
-
-                  // switch (snapshot.connectionState) {
-                  //   case ConnectionState.waiting:
-                  //   case ConnectionState.active:
-                  //     if (snapshot.hasData) {
-                  //       final allNotes = snapshot.data as List<DatabaseNote>;
-                  //       print(allNotes);
-                  //       return ListView.builder(
-                  //           itemCount: allNotes.length,
-                  //           itemBuilder: (context, index) {
-                  //             final note = allNotes[index];
-                  //             return ListTile(
-                  //               title: Text(
-                  //                   note.text,
-                  //                   maxLines: 1,
-                  //                   softWrap: true,
-                  //                   overflow: TextOverflow.ellipsis,
-                  //                 //showing ...
-                  //               ),
-                  //             );
-                  //           });
-                  //     }
-                  //     return const Text('Got all the notes');
-                  //   default:
-                  //     return const CircularProgressIndicator();
-                  // }
                 },
               );
             default:
