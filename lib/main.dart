@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/firebase_options.dart';
 import 'package:mynotes/service/auth/auth/auth_service.dart';
-import 'package:mynotes/utilities/show_error_dialog.dart';
 import 'package:mynotes/views/login_view.dart';
 import 'package:mynotes/views/notes/new_note_view.dart';
 import 'package:mynotes/views/notes/notes_view.dart';

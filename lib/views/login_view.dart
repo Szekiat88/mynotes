@@ -7,6 +7,7 @@ import '../firebase_options.dart';
 import 'dart:developer' as devtools show log;
 
 import '../service/auth/auth/auth_exceptions.dart';
+import '../utilities/dialogs/error_dialog.dart';
 
 //Type stl to get this
 //key in alt + enter for changing to either StatefulWidget/StatelessWidget
