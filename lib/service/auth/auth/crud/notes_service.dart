@@ -15,6 +15,7 @@ class NotesService {
 
   static final NotesService _shared = NotesService._sharedInstance();
 
+  // Singleton starting part
   NotesService._sharedInstance() {
     _notesStreamController =
         StreamController<List<DatabaseNote>>.broadcast(onListen: () {
@@ -23,6 +24,7 @@ class NotesService {
   }
 
   factory NotesService() => _shared;
+  // Singleton end part
 
   late final StreamController<List<DatabaseNote>> _notesStreamController;
 
